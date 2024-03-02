@@ -15,6 +15,20 @@ from plr_exercise import PLR_ROOT_DIR
 
 
 def train(args, model, device, train_loader, optimizer, epoch):
+    '''
+    Trains the NN on train_loader training data. Prints and logs training progress. 
+
+    Inputs:
+    - args : Configurations
+    - model: Torch.nn.module : neural network model to train
+    - device: cuda or cpu
+    - train_loader: training dataset
+    - optimizer: optimziatio for model parameters
+    - epoch: current epoch number. 
+
+    Returns:
+    None
+    '''
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
 
@@ -45,6 +59,21 @@ def train(args, model, device, train_loader, optimizer, epoch):
 
 
 def test(model, device, test_loader, epoch):
+    '''
+    Evaluates the NN on provided test data
+
+    Calculates loss and accuracy, and logs it. 
+
+    Inputs:
+    - model: torch.nn.Module: neural network model
+    - device: cuda or cpu
+    - test_loader (dataLoader): test dataset
+    - epoch: Current epoch number
+
+    Returns:
+    float: average Loss over the dataset
+    
+    '''
     model.eval()
     test_loss = 0
     correct = 0
@@ -74,7 +103,22 @@ def test(model, device, test_loader, epoch):
     return test_loss
 
 def train_optuna(trial, args, model, device):
-    '''usage of optuna'''
+    '''
+    Utiilizes Optuna for hyperparam optimization during training
+
+    Suggests values for learning rate, batch size, gamma and total number of epochs during training
+    intermedially outputs the best parameters of the study so far
+
+    Inputs:
+    trial: optuna.trial: trial object for suggesting hyperparameters
+    args: configurations
+    model: torch.nn.module: neural net
+    device: torch.device: gpu or cpu
+
+    Outputs:
+    float: Final test set loss after training witht the suggested parameters
+    
+    '''
     optim_lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
     optim_batch_size = trial.suggest_categorical("batch_size", [64,128,256])
     optim_gamma = trial.suggest_float("gamma", 0.5,0.99)
@@ -107,10 +151,29 @@ def train_optuna(trial, args, model, device):
     return loss
 
 
-
-
-
 def main():
+    '''
+    Main function
+
+    - Parses training settings
+    - Initializes wandb for tracking
+    - Sets up dataloaders and transforms for MNIST dataset
+    - Initializes neural net
+    - Performs optuna hyperparameter optimzation
+    - Prints best hyperparameters found during optimization
+    - Saves the trained model and logs training code as a WandB artifact.
+
+    Batch Size: Batch size for training: default 64
+    Test Batch Size: default 1000
+    epochs: Number of epochs to train. default 2.
+    lr: learning rate
+    gamma: learning rate step
+    seed: random seed
+
+    Inputs: None
+    Returns: None
+    
+    '''
     # Training settings
     parser = argparse.ArgumentParser(description="PyTorch MNIST Example")
     parser.add_argument(
