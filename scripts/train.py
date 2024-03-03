@@ -229,7 +229,7 @@ def main():
         torch.save(model.state_dict(), "mnist_cnn.pt")
 
     code_artifact = wandb.Artifact("training_code", type="code")
-    code_artifact.add_file("scripts/train.py")
+    code_artifact.add_file("train.py")
     wandb.log_artifact(code_artifact)
 
 
